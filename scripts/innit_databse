@@ -1,0 +1,70 @@
+/*
+=========================================================
+    OLIST RETAIL ANALYTICS DATA WAREHOUSE
+=========================================================
+
+Purpose:
+    Creates the Data Warehouse database and schemas
+    used throughout the project.
+
+Schemas:
+    • bronze  - Raw imported data
+    • silver  - Cleaned and standardized data
+    • gold    - Business-ready analytical tables
+
+Author : Ismail Vankhar
+Project: SQL Data Warehouse - Olist Retail Analytics
+Date   : July 2026
+=========================================================
+*/
+
+USE master;
+GO
+
+---------------------------------------------------------
+-- Drop existing database
+---------------------------------------------------------
+
+IF EXISTS (
+    SELECT 1
+    FROM sys.databases
+    WHERE name = 'olistDB'
+)
+BEGIN
+    ALTER DATABASE OlistRetailDW
+    SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+
+    DROP DATABASE olistDB;
+END;
+GO
+
+---------------------------------------------------------
+-- Create Data Warehouse Database
+---------------------------------------------------------
+
+CREATE DATABASE olistDB;
+GO
+
+USE olistDB;
+GO
+
+---------------------------------------------------------
+-- Create Schemas
+---------------------------------------------------------
+
+
+
+CREATE SCHEMA silver;
+GO
+
+CREATE SCHEMA gold;
+GO
+
+---------------------------------------------------------
+-- Verify Schemas
+---------------------------------------------------------
+
+SELECT name
+FROM sys.schemas
+WHERE name IN ('silver','gold');
+GO
