@@ -1,0 +1,83 @@
+# 🥈 Silver Layer – Data Cleaning & Standardization
+
+The Silver layer transforms the raw Bronze data into clean, standardized datasets suitable for downstream analytics. During this stage, data quality checks and transformations were applied while preserving the original business meaning.
+
+## Objectives
+
+- Standardize data types
+- Remove leading and trailing spaces
+- Standardize text formatting
+- Optimize numeric precision
+- Preserve timestamps
+- Create clean Silver tables for analytical processing
+
+## Tables Created
+
+- silver.olist_customers_dataset
+- silver.olist_geolocation_dataset
+- silver.olist_orders_dataset
+- silver.olist_order_items_dataset
+- silver.olist_order_payments_dataset
+- silver.olist_order_reviews_dataset
+- silver.olist_products_dataset
+- silver.olist_sellers_dataset
+
+## Transformations Applied
+
+### Customers
+- Copied data from Bronze layer
+- Trimmed whitespace from city and state
+- Standardized city names to Proper Case
+- Preserved customer identifiers
+
+### Geolocation
+- Rounded latitude and longitude to 6 decimal places
+- Converted coordinates to DECIMAL(9,6)
+- Trimmed whitespace
+- Converted city names to Proper Case
+- Standardized state codes to uppercase
+
+### Orders
+- Preserved all timestamps
+- Retained original order lifecycle information
+- No unnecessary transformations applied
+
+### Order Items
+- Converted price to DECIMAL(10,2)
+- Converted freight value to DECIMAL(10,2)
+- Preserved shipping timestamp
+
+### Order Payments
+- Converted payment_value to DECIMAL(10,2)
+- Preserved payment method and installment information
+
+### Order Reviews
+- Trimmed review titles
+- Trimmed review messages
+- Preserved review timestamps
+- Preserved review scores
+
+### Products
+- Preserved product dimensions
+- Preserved product weight
+- Preserved product metadata
+- Maintained product category information
+
+### Sellers
+- Preserved seller information
+- Standardized seller location fields
+
+## Data Quality Checks
+
+The following validations were performed before loading into the Silver layer:
+
+- Checked for NULL values
+- Checked for leading and trailing whitespace
+- Standardized text formatting
+- Optimized numeric precision
+- Preserved datetime precision
+- Verified schema compatibility before loading
+
+## Result
+
+The Silver layer now contains clean, standardized datasets ready for dimensional modeling and Gold layer development.
