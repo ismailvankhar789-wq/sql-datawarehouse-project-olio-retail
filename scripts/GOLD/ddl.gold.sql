@@ -181,32 +181,37 @@ IF OBJECT_ID('gold.fact_order_items', 'V') IS NOT NULL
     DROP VIEW gold.fact_order_items;
 GO
 
- 
-     CREATE VIEW gold.fact_order_items AS (
-      select 
-        oi.order_id,
-        oi.order_item_id,
-       
-        gp.product_key,
-        gs.seller_key,
-        foh.customer_key,
- 
-        oi.shipping_limit_date,
-       
-      
-        oi.price,
-        oi.freight_value
+CREATE VIEW gold.fact_order_items AS
 
-        from silver.olist_order_items_dataset oi
-        left join gold.dim_products gp
-        on oi.product_id = gp.product_id
-        left join gold.dim_sellers gs
-        on oi.seller_id = gs.seller_id
-        left join  gold.fact_orders_header foh
-        on oi.order_id = foh.order_id
-        )
+SELECT
+    oi.order_id,
+    oi.order_item_id,
+
+    dp.product_key,
+    ds.seller_key,
+    boc.customer_key,
+
+    FORMAT(oi.shipping_limit_date, 'dd-MM-yyyy HH:mm') AS shipping_limit_date,
+
+    oi.price,
+    oi.freight_value,
+
+    (oi.price + oi.freight_value) AS total_item_value,
+
+    CASE
+        WHEN oi.price < 50 THEN 'Budget'
+        WHEN oi.price < 150 THEN 'Mid Range'
+        ELSE 'Premium'
+    END AS price_segment
+
+FROM silver.olist_order_items_dataset oi
+LEFT JOIN gold.dim_products dp
+    ON oi.product_id = dp.product_id
+LEFT JOIN gold.dim_sellers ds
+    ON oi.seller_id = ds.seller_id
+LEFT JOIN silver.bridge_order_customer boc
+    ON oi.order_id = boc.order_id;
 GO
-
 
 -- =============================================================================
 -- Create Fact: gold.fact_order_payments
