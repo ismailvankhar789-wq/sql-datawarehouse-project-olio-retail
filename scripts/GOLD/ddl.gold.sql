@@ -139,24 +139,38 @@ IF OBJECT_ID('gold.fact_orders_header', 'V') IS NOT NULL
     DROP VIEW gold.fact_orders_header;
 GO
 
-
 CREATE VIEW gold.fact_orders_header AS
 
 SELECT
-
     o.order_id,
-    dc.customer_key,
+    o.customer_id,
+    boc.customer_key,
     o.order_status,
+
     o.order_purchase_timestamp,
     o.order_approved_at,
     o.order_delivered_carrier_date,
     o.order_delivered_customer_date,
-    o.order_estimated_delivery_date
+    o.order_estimated_delivery_date,
+
+    DATEDIFF(HOUR,
+             o.order_purchase_timestamp,
+             o.order_approved_at) AS approval_hours,
+
+    DATEDIFF(DAY,
+             o.order_purchase_timestamp,
+             o.order_delivered_customer_date) AS delivery_days,
+
+    CASE
+        WHEN o.order_delivered_customer_date IS NULL THEN 'Not Delivered'
+        WHEN o.order_delivered_customer_date < o.order_estimated_delivery_date THEN 'Early'
+        WHEN o.order_delivered_customer_date = o.order_estimated_delivery_date THEN 'On Time'
+        ELSE 'Late'
+    END AS delivery_status
 
 FROM silver.olist_orders_dataset o
-
-LEFT JOIN gold.dim_customers dc
-ON o.customer_id = dc.customer_id;
+LEFT JOIN silver.bridge_order_customer boc
+    ON o.order_id = boc.order_id;
 GO
 
 -- =============================================================================
@@ -230,16 +244,26 @@ GO
 CREATE VIEW gold.fact_order_reviews AS
 
 SELECT
-
     r.review_id,
     r.order_id,
     boc.customer_key,
     r.review_score,
-    r.review_creation_date,
-    r.review_answer_timestamp
+
+    CASE
+        WHEN r.review_score >= 4 THEN 'Positive'
+        WHEN r.review_score = 3 THEN 'Neutral'
+        WHEN r.review_score <= 2 THEN 'Negative'
+        ELSE 'N/A'
+    END AS customer_sentiment,
+
+    r.review_creation_date  AS review_creation_date,
+    r.review_answer_timestamp review_answer_timestamp,
+
+    DATEDIFF(HOUR,
+             r.review_creation_date,
+             r.review_answer_timestamp) AS response_hours
 
 FROM silver.olist_order_reviews_dataset r
-
 LEFT JOIN silver.bridge_order_customer boc
-ON r.order_id = boc.order_id;
+    ON r.order_id = boc.order_id;
 GO
